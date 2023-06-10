@@ -2,35 +2,36 @@ import { useCallback, useMemo } from "react";
 import { Hotel } from "../../types/hotel";
 import OverlayView from "../OverlayView";
 import { motion } from "framer-motion";
+import {HealthProvider} from "../../services/fetchHealthProviders/types";
 
 interface CustomMarkerProps {
-  hotel: Hotel;
+  healthProvider: HealthProvider;
   map?: google.maps.Map;
-  onClick: (payload: Hotel) => void;
+  onClick: (payload: HealthProvider) => void;
   highlight?: boolean;
 }
 
 export default function CustomMarker({
-  hotel,
+  healthProvider,
   map,
   onClick,
   highlight,
 }: CustomMarkerProps) {
   const price = useMemo(() => {
-    return hotel.ratesSummary.minPrice.replace(/\.(.*?\d*)/g, "");
-  }, [hotel]);
+    return healthProvider.fees.min;
+  }, [healthProvider]);
 
   const handleClick = useCallback(() => {
-    onClick(hotel);
-  }, [onClick, hotel]);
+    onClick(healthProvider);
+  }, [onClick, healthProvider]);
 
   return (
     <>
       {map && (
         <OverlayView
           position={{
-            lat: hotel.location.latitude as number,
-            lng: hotel.location.longitude as number,
+            lat: healthProvider.coordinates.lat as number,
+            lng: healthProvider.coordinates.long as number,
           }}
           map={map}
           zIndex={highlight ? 99 : 0}

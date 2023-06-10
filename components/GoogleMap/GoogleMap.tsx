@@ -3,6 +3,7 @@ import { useMemo } from "react";
 import { Hotel } from "../../types/hotel";
 import Map from "../Map";
 import Marker from "../CustomMarker";
+import {HealthProvider} from "../../services/fetchHealthProviders/types";
 
 const render = (status: Status) => {
   if (status === Status.FAILURE) {
@@ -14,8 +15,8 @@ const render = (status: Status) => {
 interface GoogleMapProps {
   onIdle?: (map: google.maps.Map) => void;
   onClick?: (e: google.maps.MapMouseEvent) => void;
-  onMarkerClick: (payload: Hotel) => void;
-  markers?: Hotel[];
+  onMarkerClick: (payload: HealthProvider) => void;
+  markers?: HealthProvider[];
   center: google.maps.LatLngLiteral;
   zoom: number;
   apiKey: string;
@@ -33,7 +34,7 @@ export default function GoogleMap({
   highlightedMarkerId,
 }: GoogleMapProps) {
   const filtered = useMemo(() => {
-    return markers?.filter((m) => m.location.latitude && m.location.longitude);
+    return markers?.filter((m) => m.coordinates.lat && m.coordinates.long);
   }, [markers]);
 
   return (
@@ -53,12 +54,12 @@ export default function GoogleMap({
           zoomControl={false}
           clickableIcons={false}
         >
-          {filtered?.map((hotel) => (
+          {filtered?.map((healthProvider) => (
             <Marker
-              key={hotel.hotelId || hotel.pclnId}
-              hotel={hotel}
+              key={healthProvider.id}
+              healthProvider={healthProvider}
               onClick={onMarkerClick}
-              highlight={hotel.hotelId === highlightedMarkerId}
+              highlight={healthProvider.id === highlightedMarkerId}
             />
           ))}
         </Map>

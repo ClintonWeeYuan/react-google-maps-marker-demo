@@ -4,25 +4,17 @@ import Head from "next/head";
 import { useCallback, useState } from "react";
 import Card from "../components/Card";
 import GoogleMap from "../components/GoogleMap";
-import { fetchHotels, FetchHotelsResponse } from "../services/fetchHotels";
-import { Hotel } from "../types/hotel";
+import dummyData from "../services/fetchHealthProviders/dummyData";
+import {HealthProvider} from "../services/fetchHealthProviders/types";
 
-const query = () =>
-  fetchHotels({
-    checkIn: "2022-11-15",
-    checkOut: "2022-11-16",
-    locationId: 3000002244,
-    rooms: 1,
-  });
+
 
 const Home: NextPage = () => {
-  const { data } = useQuery<FetchHotelsResponse>(["hotels"], query, {
-    retry: false,
-  });
+  const data = dummyData;
 
   const [center, setCenter] = useState<google.maps.LatLngLiteral>({
-    lat: 37.78746222,
-    lng: -122.412923,
+    lat: 51.540447,
+    lng: -0.148366,
   });
 
   const [zoom, setZoom] = useState<number>(15);
@@ -37,17 +29,28 @@ const Home: NextPage = () => {
     }
   };
 
-  const [highlightedHotel, setHighlightedHotel] = useState<Hotel | null>(null);
+  // const [highlightedHotel, setHighlightedHotel] = useState<Hotel | null>(null);
+  const [highlightedHealthProvider, setHighlightedHealthProvider] = useState<HealthProvider | null>(null);
 
+  // const onMarkerClick = useCallback(
+  //   (payload: Hotel) => {
+  //     if (highlightedHotel === payload) {
+  //       setHighlightedHotel(null);
+  //     } else {
+  //       setHighlightedHotel(payload);
+  //     }
+  //   },
+  //   [highlightedHotel]
+  // );
   const onMarkerClick = useCallback(
-    (payload: Hotel) => {
-      if (highlightedHotel === payload) {
-        setHighlightedHotel(null);
+    (payload: HealthProvider) => {
+      if (highlightedHealthProvider === payload) {
+        setHighlightedHealthProvider(null);
       } else {
-        setHighlightedHotel(payload);
+        setHighlightedHealthProvider(payload);
       }
     },
-    [highlightedHotel]
+    [highlightedHealthProvider]
   );
 
   return (
@@ -64,19 +67,19 @@ const Home: NextPage = () => {
             apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!}
             center={center}
             zoom={zoom}
-            markers={data?.hotels}
+            markers={data.healthProviders}
             onIdle={onIdle}
             onMarkerClick={onMarkerClick}
-            highlightedMarkerId={highlightedHotel?.hotelId}
+            highlightedMarkerId={highlightedHealthProvider?.id}
           />
         </div>
         <div>
-          {highlightedHotel && (
+          {highlightedHealthProvider && (
             <Card
-              name={highlightedHotel.name}
-              stars={highlightedHotel.starRating}
-              imgUrl={highlightedHotel.thumbnailUrl}
-              address={`${highlightedHotel.location.address.addressLine1}, ${highlightedHotel.location.address.cityName}`}
+              name={`${highlightedHealthProvider.consultant.firstName} ${highlightedHealthProvider.consultant.lastName}` }
+              address={`${highlightedHealthProvider.institution}`}
+              maxFee={highlightedHealthProvider.fees.max}
+              minFee={highlightedHealthProvider.fees.min}
             />
           )}
         </div>
